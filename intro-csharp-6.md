@@ -937,6 +937,415 @@ public static void Main() {
 }
 ```
 ---
+## auto-property initializer
+### Code (C# 1.0+) - properties are first-class citizens
+
+```csharp
+public class Person 
+{
+  private String name;
+
+  // first-class citizen properties in C#
+  public String Name 
+  {
+    get { return name; }
+    set { name = value; }
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 3.0+) 
+
+```csharp
+public class Person 
+{
+  public String Name { get; set; }
+}
+```
+In the background compiler generates this:
+```csharp
+public class Person 
+{
+  private String <Name>k__BackingField;
+
+  public String Name 
+  {
+    get { return <Name>k__BackingField; }
+    set { <Name>k__BackingField = value; }
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 1.0+) - read-only properties
+
+```csharp
+public class Person 
+{
+  private readonly String name;
+
+  public String Name { 
+    get { return name; }
+  }
+
+  public Person(String name) {
+    this.name = name;
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 6.0) - read-only properties
+
+In C# 6.0 you can define read-only auto properties as below:
+
+```csharp
+public class Person 
+{
+  // no setter!
+  public String Name { get; }
+
+  public Person(String name) 
+  {
+    // you have to initialize its value in the constructor
+    // and you cannot change its value later
+    this.Name = name;
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 6.0) - read-only properties
+
+... and the compiler will generate the below code:
+```csharp
+public class Person 
+{
+  private readonly String <Name>k__BackingField;
+
+  public String Name {
+    get { return <Name>k__BackingField; }
+  }
+
+  public Person(String name) {
+    this.Name = name;
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 6.0) - initializing read-only properties
+
+You can initialize its value where it is defined:
+
+```csharp
+public class Person 
+{
+  // passing a default value to it
+  public String Name { get; } = String.Empty;
+
+  public Person() { }
+
+  public Person(String name) 
+  {
+    this.Name = name;
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 6.0) - initializing read-only properties
+
+... and the compiler will generate the below code:
+```csharp
+public class Person 
+{
+  private readonly String <Name>k__BackingField = String.Empty;
+
+  public String Name {
+    get { return <Name>k__BackingField; }
+  }
+
+  public Person() { }
+
+  public Person(String name) {
+    this.Name = name;
+  }
+}
+```
+---
+## auto-property initializer
+### Code (C# 6.0) - initializing properties
+
+However you can easily set a default value to any property.
+
+```csharp
+public class Person 
+{
+  // passing a default value to it
+  public String Name { get; set; } = String.Empty;
+}
+```
+So defining any kind of properties depend on your coding style ...
+---
+## expression bodied functions and properties
+### Code (C# 6.0) - read-only properties
+
+Defining just one statement-length method or property could be verbose ... In C# 6.0 you can easily define expression bodied functions and properties
+
+```csharp
+public struct Point {
+  public int X { get; private set; }
+  public int Y { get; private set; }
+
+  public Point() {
+    X = 10;
+    Y = 10;
+  }
+  
+
+  // this ToString method is verbose ...
+  public override string ToString() {
+    return $"{nameof(Point)}({nameof(X)}: {X}, {nameof(Y)}: {Y})";
+  }
+}
+```
+---
+## expression bodied functions and properties
+### Code (C# 6.0)
+
+Defining just one statement-length method or property could be verbose ... In C# 6.0 you can easily define expression bodied functions and properties
+
+```csharp
+public struct Point {
+  public int X { get; private set; }
+  public int Y { get; private set; }
+
+  public Point() {
+    X = 10;
+    Y = 10;
+  }
+  
+  // no curly braces and return statement, just one expression
+  // its syntax comes from lambda function style
+  public override string ToString() 
+    => $"{nameof(Point)}({nameof(X)}: {X}, {nameof(Y)}: {Y})";
+  
+}
+```
+---
+## expression bodied functions and properties
+### Code (C# 6.0)
+
+It can be used for properties as well ...
+
+```csharp
+using static System.Math;
+
+public struct Point {
+  public int X { get; private set; }
+  public int Y { get; private set; }
+
+  // compiler will generate a getter section to this property
+  public double Distance 
+  {
+    get { return Sqrt(Pow(X, 2) + Pow(Y, 2)); }
+  } 
+
+  public Point() {
+    X = 10;
+    Y = 10;
+  }
+}
+```
+---
+## expression bodied functions and properties
+### Code (C# 6.0)
+
+It can be used for properties as well ...
+
+```csharp
+using static System.Math;
+
+public struct Point {
+  public int X { get; private set; }
+  public int Y { get; private set; }
+
+  // compiler will generate a getter section to this property
+  public double Distance => Sqrt(Pow(X, 2) + Pow(Y, 2));
+
+  public Point() {
+    X = 10;
+    Y = 10;
+  }
+}
+```
+---
+## index initializers
+### Code (C# 1.0+)
+
+Initializing a dictionary is not always convinient especially if we have to pass some predefined values into it ...
+
+```csharp
+var dictionary = new Dictionary<int, String>();
+
+// clumsy and verbose way ...
+// we have to use several method call statement to intialize it ...
+dictionary.Add(1, "John Doe");
+dictionary.Add(2, "Jane Doe");
+dictionary.Add(3, "Bruce Wayne");
+dictionary.Add(4, "Clark Kent");
+```
+---
+## index initializers
+### Code (C# 1.0+)
+
+Initializing a dictionary is not always convinient especially if we have to pass some predefined values into it ...
+
+```csharp
+var dictionary = new Dictionary<int, String>();
+
+// in several case (if indexer property has setter) you can use this: 
+// we still have to use several assignment statement to intialize it ...
+dictionary[1] = "John Doe";
+dictionary[2] = "Jane Doe";
+dictionary[3] = "Bruce Wayne";
+dictionary[4] = "Clark Kent";
+```
+---
+## index initializers
+### Code (C# 3.0+)
+
+In C# 3.0 collection initializers had been implemented into language.
+
+```csharp
+// dictionary is a collection too
+// increase readability, but not always helpful unfortunatelly
+// initializing a dictionary could be just one expression (!)
+// which is helps initialize properties or fields in type body
+var dictionary = new Dictionary<int, String>() {
+  { 1, "John Doe" }
+  { 2, "Jane Doe" }
+  { 3, "Bruce Wayne" }
+  { 4, "Clark Kent" }
+};
+```
+---
+## index initializers
+### Code (C# 6.0)
+
+In C# 6.0 index initializers helps to improve readability of initializing key-like data structures.
+
+```csharp
+// dictionary is a collection too
+// increase readability, but not always helpful unfortunatelly
+// initializing a dictionary could be just one expression (!)
+// which is helps initialize properties or fields in type body
+var dictionary = new Dictionary<int, String>() {
+  // we're using indexer property of type to set the specified values
+  [1] = "John Doe",
+  [2] = "Jane Doe",
+  [3] = "Bruce Wayne",
+  [4] = "Clark Kent"
+};
+```
+---
+## index initializers
+### Code (C# 3.0+)
+
+**Why do we need** this new syntax if we have already had one very similar? 
+
+```csharp
+var dictionary = new Dictionary<int, String>() {
+  { 1, "John Doe" }
+  { 2, "Jane Doe" }
+  { 3, "Bruce Wayne" }
+  { 4, "Clark Kent" }
+};
+```
+The compiler will generate this code in the background: 
+```csharp
+var dictionary = new Dictionary<int, String>();
+dictionary.Add(1, "John Doe");
+dictionary.Add(2, "Jane Doe");
+dictionary.Add(3, "Bruce Wayne");
+dictionary.Add(4, "Clark Kent");
+```
+---
+## index initializers
+### Code (C# 6.0)
+
+**Why do we need** this new syntax if we have already had one very similar? 
+
+```csharp
+var dictionary = new Dictionary<int, String>() {
+  [1] = "John Doe",
+  [2] = "Jane Doe",
+  [3] = "Bruce Wayne",
+  [4] = "Clark Kent"
+};
+```
+The compiler will generate this code in the background: 
+```csharp
+var dictionary = new Dictionary<int, String>();
+dictionary[1] = "John Doe";
+dictionary[2] = "Jane Doe";
+dictionary[3] = "Bruce Wayne";
+dictionary[4] = "Clark Kent";
+```
+---
+## index initializers
+### Code (C# 3.0+)
+
+**Why do we need** this new syntax if we have already had one very similar? 
+
+```csharp
+public partial class DummyObject : ICollection
+{
+  public void Add(Int32 first, String second, Boolean third)
+  {
+    Console.WriteLine("{0},{1},{2}", first, second, third);
+  }
+}
+
+public static void Main(string[] args)
+{
+  // this works fine, because DummyObject has Add() method
+  // and implements ICollection interface
+  DummyObject dummy = new DummyObject
+  {
+    { 1, "one", true },     // 1,one,true
+    { 2, "two", false }     // 2,two,false
+  };
+}
+```
+---
+## index initializers
+### Code (C# 6.0)
+
+Because semantically they aren't equivalent. Doesn't need to implement `ICollection` interface to use index initializers. It could be very handy when working with `JSON` objects. 
+
+```csharp
+public class DummyObject
+{
+  public Boolean this[int first, string second]
+  {
+    set { Console.WriteLine("{0},{1},{2}", first, second, value); }
+  }
+}
+
+public static void Main(string[] args)
+{
+  // no need to implement ICollection interface(!)
+  DummyObject dummy = new DummyObject
+  {
+    [1, "one"] = true,     // 1,one,true
+    [2, "two"] = false     // 2,two,false
+  };
+}
+```
+---
 ## Future
 
 - [**Nullable reference types** ](https://github.com/dotnet/roslyn/issues/3910)
