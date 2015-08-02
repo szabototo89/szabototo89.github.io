@@ -1346,14 +1346,113 @@ public static void Main(string[] args)
 }
 ```
 ---
+## exception filters
+### Code (C# 1.0+)
+
+Basic idea: capture exception with given condition
+
+```csharp
+public void Foo() 
+{
+  try 
+  {
+    DoVeryImportantThing();
+  }  
+  catch (CustomException ex)
+  {
+    // can we retry?
+    if (!ex.CanRetry) {
+      throw; // or throw ex;
+    }
+
+    DoSomeRecovering();
+  }
+}
+
+```
+---
+## exception filters
+### Code (C# 6.0)
+
+Exception filters can manage which exception is wanted to catch and handle.
+
+```csharp
+public void Foo() 
+{
+  try 
+  {
+    DoVeryImportantThing();
+  }  
+  catch (CustomException ex) when (ex.CanRetry)
+  {
+    DoSomeRecovering();
+  }
+}
+```
+---
+## exception filters
+### Code (C# 6.0)
+
+Pretty good, but is it just syntactic sugar? **NO**. Exception filters check condition before catching the exception so they **don't unwind the stack**. This subtle difference can help to investigate bugs on server-side. 
+
+```csharp
+public void Foo() 
+{
+  try 
+  {
+    DoVeryImportantThing();
+  }  
+  // exception filters don't unwind the stack
+  catch (CustomException ex) when (ex.CanRetry) 
+  {
+    DoSomeRecovering();
+  }
+}
+
+```
+---
+## exception filters
+### Code (C# 6.0)
+
+Exception filters have a strange side-effect:
+
+```csharp
+public static bool LogException(Exception ex, string message) {
+  Console.WriteLine($"Exception has occured: {ex.Message}; {message}");
+  return true;
+}
+
+public void Foo() {
+  try {
+    DoVeryImportantThing();
+  }  
+  // exception filters don't unwind the stack
+  catch (CustomException ex) when (LogException(ex, "Logging my custom exception")) {
+    DoSomeRecovering();
+  }
+}
+
+```
+> *How to implement pattern matching with exception filters* ([link](http://tomasp.net/blog/2015/csharp-pattern-matching/))
+---
 ## Future
 
 - [**Nullable reference types** ](https://github.com/dotnet/roslyn/issues/3910)
-- pattern matching
-- Language support for tuples
-- Local functions
-- Method contracts / code contracts
-- `params IEnumerable`
-- and a lot ...
+- [pattern matching](http://www.infoq.com/news/2014/08/Pattern-Matching)
+- [Language support for tuples](https://github.com/dotnet/roslyn/issues/347)
+- [Local functions](https://github.com/dotnet/roslyn/issues/259)
+- [Method contracts / code contracts](https://github.com/dotnet/roslyn/issues/119)
+- [`params IEnumerable`](https://github.com/dotnet/roslyn/issues/36)
+- [and a lot ...](https://github.com/dotnet/roslyn/issues/2136)
 
 More: [Design Notes](https://github.com/dotnet/roslyn/labels/Design%20Notes)
+---
+## References
+
+- [.NET fiddle](https://dotnetfiddle.net/)
+- [Roslyn official page](http://roslyn.io/)
+- [volatile read](http://www.volatileread.com/Thread/Browse)
+- [New Features in C# 6.0 (video)](https://www.youtube.com/playlist?list=PL8m4NUhTQU4-5RmHwMn5LpnEJbNCSVbAc)
+- and Google
+---
+## Q & A
