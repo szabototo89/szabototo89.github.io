@@ -839,7 +839,7 @@ public struct Point {
   public int X_N { get; private set; }
 
   public Point(int x_0) 
-    : this() // call parameterless constructor to initialize other fields
+    : this() // calling parameterless constructor to initialize other fields
   {
     X_0 = x_0;
   }
@@ -860,6 +860,80 @@ public struct Point {
   {
     X_N = 10;
   }
+}
+```
+---
+## parameterless constructor in struct
+### Code (C# 6.0) - Restrictions
+However we can solve this problem with a weird syntax ...
+```csharp
+public struct Point {
+  public int X_0 { get; private set; }
+  // ... 1 to N
+  public int X_N { get; private set; }
+
+  public Point() 
+  {
+    // this assignment is only allowed in constructors!
+    this = default(Point);  // initialize fields to default value
+    // X_0 = default(int);
+    // ...
+    // X_N = default(int);
+    X_N = 10;
+  }
+}
+```
+---
+## parameterless constructor in struct
+### Code (C# 6.0) - default(T) != new T()
+
+```csharp
+public struct Point {
+  public int X { get; private set; }
+  public int Y { get; private set; }
+
+  public Point() {
+    X = 10;
+    Y = 10;
+  }
+
+  public override string ToString() {
+    return $"{nameof(Point)}({nameof(X)}: {X}, {nameof(Y)}: {Y})";
+  }
+}
+
+public static void Main() {
+  Console.WriteLine(new Point());     // Point(X: 10, Y: 10)
+  Console.WriteLine(default(Point));  // Point(X: 0, Y: 0)
+
+  Console.WriteLine(new Point() != default(Point)); // true
+}
+```
+---
+## parameterless constructor in struct
+### Code (C# 6.0) - Sounds simple, but ...
+
+```csharp
+public static void Main() {
+  // we need to call explicitly the parameterless constructor
+  Point p1 = new Point();
+  Console.WriteLine(p1);     // Point(X: 10, Y: 10)
+
+  // parameterless constructors isn't called(!)
+  Point p2;
+  Console.WriteLine(p2);     // Point(X: 0, Y: 0)
+
+  // equivalent to
+  // Point p2 = default(Point);
+
+  // why does it feel weird (?) because we get used to this ...
+  int a;                  // default usage
+  int b = new int();      // strange, but totally equivalent to int b;
+  int c = default(int);   // equivalent to default usage
+
+  Console.WriteLine(a);   // 0
+  Console.WriteLine(b);   // 0
+  Console.WriteLine(c);   // 0
 }
 ```
 ---
