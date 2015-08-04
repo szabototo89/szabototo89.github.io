@@ -75,11 +75,11 @@ public static class HtmlBuilder
 
     public static string Html(params string[] children)
     {
-        return Tag("p", children);
+        return Tag("html", children);
     }
     public static string Body(params string[] children)
     {
-        return Tag("p", children);
+        return Tag("body", children);
     }
 
     public static string P(params string[] children)
