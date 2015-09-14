@@ -75,11 +75,11 @@ public static class HtmlBuilder
 
     public static string Html(params string[] children)
     {
-        return Tag("p", children);
+        return Tag("html", children);
     }
     public static string Body(params string[] children)
     {
-        return Tag("p", children);
+        return Tag("body", children);
     }
 
     public static string P(params string[] children)
@@ -154,7 +154,7 @@ public class Point
 public static double GetDistanceFromOrigin(Point point)
 {
   // common design pattern: guard clause
-  if (point != null) {
+  if (point == null) {
     throw new ArgumentNullException("point");
   }
 
@@ -169,7 +169,7 @@ public static class Ensure {
   public static void NotNull<TValue>(TValue value, string argName)
     where TValue: class
   {
-    if (value != null) {
+    if (value == null) {
       throw new ArgumentNullException(argName);
     }
   }
@@ -451,28 +451,6 @@ Unfortunately `$"string literals"` doesn't support multi-line values ...
   second line
   third line
   "; // absolutely fine @"" represents multiline string constonts
-```
----
-## String Interpolation ([link](https://dotnetfiddle.net/rg59n6))
-### Code (C# 6.0+) with **nameof** operator
-```csharp
-public class Person
-{
-  // other members ...
-
-  public override string ToString()
-  {
-    // just added a new parameter and 
-    // used nameof operator to make it refactoring-safe
-    return string.Format("{0}(FirstName: {1}, LastName: {2}, Age: {3})",
-                          nameof(Person), FirstName, LastName, Age);
-  }
-}
-
-public static void Main() {
-  Person p = new Person("John", "Doe", 42);
-  Console.WriteLine(p); // Person(FirstName: John, LastName: Doe, Age: 42)
-}
 ```
 ---
 ## null-conditional operator ([link](https://dotnetfiddle.net/doKZI0))
